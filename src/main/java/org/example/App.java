@@ -43,20 +43,24 @@ public class App {
     List<Character> list;
     boolean everythingIsOK = true;
 
+    public boolean pairExists(char currentLetter, char prevLetter) {
+        return (Character.isUpperCase(currentLetter)
+                && Character.isLowerCase(prevLetter))
+                ||
+                (Character.isLowerCase(currentLetter)
+                        && Character.isUpperCase(prevLetter));
+    }
+
     public void optimize(List<Character> input) {
 
         for (int i = 1; i < input.size(); i++) {
 
-            String currentLetter = String.valueOf(input.get(i));
-            String prevLetter = String.valueOf(input.get(i - 1));
+            String currentLetter = input.get(i).toString();
+            String prevLetter = input.get(i - 1).toString();
 
-            if ((Character.isUpperCase(currentLetter.charAt(0))
-                    && Character.isLowerCase(prevLetter.charAt(0))
-                    && prevLetter.equalsIgnoreCase(currentLetter))
-                    ||
-                    (Character.isLowerCase(currentLetter.charAt(0))
-                            && Character.isUpperCase(prevLetter.charAt(0))
-                            && prevLetter.equalsIgnoreCase(currentLetter))) {
+            if (pairExists(currentLetter.charAt(0), prevLetter.charAt(0))
+                    &&
+                    prevLetter.equalsIgnoreCase(currentLetter)) {
 
                 everythingIsOK = false;
                 list.remove(i);
