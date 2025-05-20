@@ -1,7 +1,14 @@
 package org.example;
 
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.stream.Collectors;
+// Iterator is not directly used in the final version of reactPolymerLogic loop
+// import java.util.Iterator; 
+// Stack is also not used
 
 /**
  * Hello world!
@@ -40,65 +47,41 @@ import java.util.stream.Collectors;
  * Must return the string of reacted polymer.
  */
 public class App {
-    List<Character> list;
-    boolean everythingIsOK = true;
 
-    public boolean pairExists(char currentLetter, char prevLetter) {
-        return (Character.isUpperCase(currentLetter)
-                && Character.isLowerCase(prevLetter))
-                ||
-                (Character.isLowerCase(currentLetter)
-                        && Character.isUpperCase(prevLetter));
-    }
-
-    public void optimize(List<Character> input) {
-
-        for (int i = 1; i < input.size(); i++) {
-
-            String currentLetter = input.get(i).toString();
-            String prevLetter = input.get(i - 1).toString();
-
-            if (pairExists(currentLetter.charAt(0), prevLetter.charAt(0))
-                    &&
-                    prevLetter.equalsIgnoreCase(currentLetter)) {
-
-                everythingIsOK = false;
-                list.remove(i);
-                list.remove(i - 1);
-                break;
-
+    private String reactPolymerLogic(String inputPolymerString) {
+        Deque<Character> stack = new LinkedList<>();
+        for (char currentChar : inputPolymerString.toCharArray()) {
+            if (!stack.isEmpty() &&
+                    Character.isLetter(stack.peek()) &&
+                    Character.isLetter(currentChar) &&
+                    Math.abs(stack.peek() - currentChar) == 32) {
+                stack.pop();
             } else {
-                everythingIsOK = true;
+                stack.push(currentChar);
             }
         }
-
-        if (!everythingIsOK) {
-            optimize(getList());
+        // Convert stack to string in the correct order.
+        // Elements are popped from the stack (which gives top-to-bottom order)
+        // and added to a temporary list. This list will be in reverse order
+        // of the final string (e.g., for "abc", stack top is 'c', list becomes [c,b,a]).
+        // Then, this list is reversed and joined.
+        List<Character> tempList = new ArrayList<>();
+        while (!stack.isEmpty()) {
+            tempList.add(stack.pop());
         }
+        Collections.reverse(tempList); // Reverse to get correct order (e.g., [a,b,c])
+        return tempList.stream().map(String::valueOf).collect(Collectors.joining());
     }
 
-    public void printList() {
-        list.forEach(System.out::print);
-    }
-
-    public void setList(String input) {
-        this.list = input.chars()
-                .mapToObj(i -> (char) i)
-                .collect(Collectors.toList());
-    }
-
-    public List<Character> getList() {
-        return list;
+    public String processPolymer(String input) {
+        return reactPolymerLogic(input);
     }
 
     public static void main(String[] args) {
-
         String input = "mJYBPpluUqQrleJjgGUWwTtsywWdDuMmNOSsLlfXxOtTCcFfgXxZGgthHb";
-
+        // Example of direct usage for clarity, though AppTest covers this.
         App app = new App();
-        app.setList(input);
-        app.optimize(app.getList());
-        app.printList();
-
+        String reactedPolymer = app.processPolymer(input);
+        System.out.println(reactedPolymer); // Expected: mJYBlrleUsyuNOfOgZtb
     }
 }
